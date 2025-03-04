@@ -9,7 +9,7 @@ This program tracks and prints statement coverage for Python functions with give
 
 ## Installation
 
-1. Unzip the `cs180_w25_netid.zip` file.
+1. Unzip the `cs180_w25_fsong009.zip` file.
 2. Make the `print_cov.py` script executable:
 
    ```bash
