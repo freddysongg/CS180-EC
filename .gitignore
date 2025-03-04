@@ -1,0 +1,6 @@
+# Test artifacts
+tests/__pycache__/
+tests/*.pyc
+tests/test_input_*.txt
+*.pyc
+__pycache__/

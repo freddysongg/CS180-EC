@@ -24,15 +24,12 @@ def main():
     input_file = sys.argv[2]
 
     try:
-        # Read function and input
         func_source = read_function(function_file)
         test_input = read_input(input_file)
 
-        # Create coverage tracker and analyze
         tracker = StatementCoverageTracker()
         coverage_output = tracker.analyze_function(func_source, test_input)
 
-        # Print the coverage output
         print(coverage_output)
 
     except FileNotFoundError as e:
