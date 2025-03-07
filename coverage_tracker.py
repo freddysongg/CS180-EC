@@ -21,11 +21,13 @@ class StatementCoverageTracker:
     def timeout_handler(self):
         """Cross-platform timeout handler"""
         self.timed_out = True
-        sys.settrace(None) 
+        sys.settrace(None)
         thread = threading.current_thread()
         if thread is not threading.main_thread():
             thread._target = None
-        raise TimeoutError("Execution exceeded maximum time limit of 2 minutes")
+            import _thread
+
+            _thread.interrupt_main()
 
     def run_with_coverage(
         self, func: Callable, input_value: Any
@@ -38,14 +40,23 @@ class StatementCoverageTracker:
             timer.start()
             sys.settrace(self.trace_function)
             func(input_value)
-        except TimeoutError:
-            print("\nWarning: Execution timed out")
-            raise  
-        except Exception as e:
+        except KeyboardInterrupt:
+            self.timed_out = True
+        except ZeroDivisionError as e:
+            result = self.format_coverage(self.source_lines, self.executed_lines)
+            print("\nCoverage before error:")
+            print(result)
             raise
+        except Exception as e:
+            pass
         finally:
             timer.cancel()
             sys.settrace(None)
+            if self.timed_out:
+                result = self.format_coverage(self.source_lines, self.executed_lines)
+                print("\nCoverage before timeout:")
+                print(result)
+                raise TimeoutError("Function execution timed out")
 
         return self.source_lines, self.executed_lines
 
@@ -81,12 +92,11 @@ class StatementCoverageTracker:
 
             namespace = {}
             exec(func_source, namespace)
-            func = namespace[tree.body[0].name]  
+            func = namespace[tree.body[0].name]
             source_lines, executed_lines = self.run_with_coverage(func, input_value)
 
             return self.format_coverage(source_lines, executed_lines)
         except (TimeoutError, ZeroDivisionError) as e:
-            result = self.format_coverage(self.source_lines, self.executed_lines)
-            raise type(e)(str(e))
+            raise
         except Exception as e:
             raise type(e)(str(e))

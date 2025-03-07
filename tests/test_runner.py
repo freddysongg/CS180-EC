@@ -97,13 +97,12 @@ def test_timeout():
     print("\n=== Testing timeout handling ===")
     result = run_test(
         """def infinite_loop(n):
-    count = 0
     while True:
-        count += 1""",
+        n += 1""",
         1,
         expect_error=True,
     )
-
+    
     assert result == "ERROR_EXPECTED", "Timeout test should pass"
     print("✓ Timeout handled correctly")
 
